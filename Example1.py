@@ -17,7 +17,7 @@
 ###############################################################################
 ###########################   Imported modules   ##############################
 
-from numpy import append, arange, array
+from numpy import append, arange, array, concatenate
 import matplotlib.pyplot as plt
 from csv import writer
 
@@ -45,9 +45,9 @@ BackgroundDevices = [Fridge, Router, Dishwasher]
 VariableDevices = [Lights, TV, Cell_charger, Laptop, Screen, Kitchen, Microwave, Kettle]
 
 ## The simulation time is set
-EndTime = 24
+ndays = 365
 StartTime = 0
-ndays = 1
+EndTime = 24*ndays
 
 ## Number of apartments in the building.
 n_houses = 10
@@ -55,21 +55,22 @@ BuildingLoad_total = array([0]*60*int((EndTime-StartTime)))
 
 
 
-for d in range(ndays):
+for i in range(n_houses):    
 
 ## For each house, the background load and the total load is calculated, and
 ## then added to the building's load.
-    for i in range(n_houses):
+    BackgroundLoad = []
+    TotalLoad = []
+    for d in range(ndays):
     
 ## Base load for the building.
-        BuildingLoad = array([0]*60*int((EndTime-StartTime)))        
-        BackgroundLoad = SetBackgroundLoad(BackgroundDevices, 24)
-        TotalLoad = SetVariableLoad(VariableDevices, BackgroundLoad, 24)
+        BackgroundLoad += SetBackgroundLoad(BackgroundDevices, 24)
+        TotalLoad += SetVariableLoad(VariableDevices, BackgroundLoad[-24*60:], 24)
     
-        BuildingLoad = [a + b for a, b in zip(BuildingLoad, TotalLoad)]
+    BuildingLoad = [a + b for a, b in zip(BackgroundLoad, TotalLoad)]
     
-#    BuildingLoad_total = append(BuildingLoad_total, BuildingLoad)
-        BuildingLoad_total = [a + b for a, b in zip(BuildingLoad_total, BuildingLoad)]
+
+    BuildingLoad_total = [a + b for a, b in zip(BuildingLoad_total, BuildingLoad)]
     
 ## The load is sampled every 15 min, as the load is samplead every 1 min.
 Load_15min = [BuildingLoad_total[15*i] for i in range(96*ndays)]
