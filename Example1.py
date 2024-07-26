@@ -10,7 +10,7 @@
 ## profile.
 ## Created by: Joel Alpízar Castillo.
 ## TU Delft
-## Version: 1.2
+## Version: 1.0
 
 
 
@@ -47,11 +47,11 @@ VariableDevices = [Lights, TV, Cell_charger, Laptop, Screen, Kitchen, Microwave,
 ## The simulation time is set
 EndTime = 24
 StartTime = 0
-ndays = 365*1
+ndays = 1
 
 ## Number of apartments in the building.
-n_houses = 1
-BuildingLoad_total = array([])
+n_houses = 10
+BuildingLoad_total = array([0]*60*int((EndTime-StartTime)))
 
 
 
@@ -68,7 +68,8 @@ for d in range(ndays):
     
         BuildingLoad = [a + b for a, b in zip(BuildingLoad, TotalLoad)]
     
-    BuildingLoad_total = append(BuildingLoad_total, BuildingLoad)
+#    BuildingLoad_total = append(BuildingLoad_total, BuildingLoad)
+        BuildingLoad_total = [a + b for a, b in zip(BuildingLoad_total, BuildingLoad)]
     
 ## The load is sampled every 15 min, as the load is samplead every 1 min.
 Load_15min = [BuildingLoad_total[15*i] for i in range(96*ndays)]
@@ -80,7 +81,7 @@ writer.writerow(Load_15min)
 file.close()
 
 ### A figure shows the complete load profile.
-#plt.figure(1)
+#plt.figure()
 #plt.plot(BuildingLoad, 'b')
 #plt.xlim([1, len(BuildingLoad)])
 #l1 = arange(0, len(BuildingLoad)+1, step=60)
@@ -92,7 +93,7 @@ file.close()
 #plt.grid()
 #
 ### A figure shows the load profile sampled every 15 min.
-plt.figure(2)
+plt.figure()
 plt.plot(Load_15min, 'b')
 plt.xlim([1, len(Load_15min)])
 #l1 = arange(0, len(Load_15min)+1, step=4)
@@ -106,7 +107,7 @@ plt.grid()
 ## The total energy of the building is calculated. Note that, as the output is
 ## on kWh, and the load profile is sampled every min, the conversion to get
 ## kW-min to kWh is 1/60.
-TotalEnergy = sum(BuildingLoad)
+TotalEnergy = sum(BuildingLoad_total)
 TotalEnergy /= 60                       # In kWh
 
 print('The total energy consumed per day by the building is: ', TotalEnergy, ' kWh')
